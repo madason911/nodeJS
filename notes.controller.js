@@ -31,23 +31,30 @@ async function printNotes() {
 
   console.log(chalk.bgBlue("Here is the list of notes:"));
   notes.forEach((note) => {
-    console.log(chalk.blue(note.id), chalk.blue(note.title));
+    console.log(chalk.bgWhite(note.id), chalk.blue(note.title));
   });
+}
+
+async function updateNote(id, payload) {
+  const notes = await getNotes();
+  const indexOfUpdateItem = notes.findIndex((note) => +note.id === id);
+  notes[indexOfUpdateItem] = { title: payload, id: `${id}` };
+  await saveNotes(notes);
+  console.log(chalk.green(`Note with id="${id}" has been updated.`));
 }
 
 async function removeNote(id) {
   const notes = await getNotes();
 
-  if (notes.findIndex((note) => +note.id === id) === -1) {
-    console.log(chalk.bgRed("Title with such ID does not exist"));
-  } else {
-    await saveNotes(notes.filter((note) => +note.id !== id));
-    console.log(chalk.bgRed("Note was removed!"));
-  }
+  const filtered = notes.filter((note) => note.id !== id);
+
+  await saveNotes(filtered);
+  console.log(chalk.red(`Note with id="${id}" has been removed.`));
 }
 
 module.exports = {
   addNote,
-  printNotes,
+  getNotes,
   removeNote,
+  updateNote,
 };
