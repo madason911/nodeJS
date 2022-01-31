@@ -31,13 +31,13 @@ async function printNotes() {
 
   console.log(chalk.bgBlue("Here is the list of notes:"));
   notes.forEach((note) => {
-    console.log(chalk.bgWhite(note.id), chalk.blue(note.title));
+    console.log(chalk.blue(note.id), chalk.blue(note.title));
   });
 }
 
 async function updateNote(id, payload) {
   const notes = await getNotes();
-  const indexOfUpdateItem = notes.findIndex((note) => +note.id === id);
+  const indexOfUpdateItem = notes.findIndex((note) => +note.id === +id);
   notes[indexOfUpdateItem] = { title: payload, id: `${id}` };
   await saveNotes(notes);
   console.log(chalk.green(`Note with id="${id}" has been updated.`));
@@ -57,4 +57,5 @@ module.exports = {
   getNotes,
   removeNote,
   updateNote,
+  printNotes,
 };
