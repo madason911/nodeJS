@@ -8,34 +8,76 @@ document.addEventListener("click", (event) => {
   }
 
   if (event.target.dataset.type === "update") {
-    const id = event.target.dataset.id;
+    const { target } = event;
+    const id = target.dataset.id;
+    let currentContent = target.closest("li").firstChild.textContent.trim();
 
-    let result = prompt(
-      "Введите новое значение ",
-      event.target.closest("li").firstChild.textContent.trim()
-    );
+    const curItem = target.closest("li");
+    const buttons = curItem.querySelectorAll("button");
+    buttons.forEach((button) => {
+      button.style.display = "none";
+    });
 
-    if (result) {
-      const data = {
-        title: result,
-        id: id,
-      };
+    curItem.innerHTML = `<input class="edit_input" value=${currentContent}></input><div class="buttons_box">
+      <button
+        class="btn btn-success"
+        data-type="save"
+      >
+        Сохранить
+      </button>
+      <button
+        class="btn btn-danger"
+        data-type="cancel"
+      >
+        Отменить
+      </button>`;
 
-      fetch(`/${id}`, {
-        method: "PUT",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
+    curItem.querySelectorAll("button").forEach((button) =>
+      button.addEventListener("click", (event) => {
+        if (
+          event.target.dataset.type === "save" ||
+          event.target.dataset.type === "cancel"
+        ) {
+          if (event.target.dataset.type === "save") {
+            currentContent = document.querySelector(".edit_input").value;
+
+            const data = {
+              title: currentContent,
+              id: id,
+            };
+
+            fetch(`/${id}`, {
+              method: "PUT",
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data),
+            }).catch((err) => {
+              console.log(err);
+            });
+          }
+
+          curItem.innerHTML = `${currentContent}
+            <div class="buttons_box">
+              <button
+                class="btn btn-primary"
+                data-type="update"
+                data-id=${id}
+              >
+                Редактировать
+              </button>
+              <button
+                class="btn btn-danger"
+                data-type="remove"
+                data-id=${id}
+              >
+                &times;
+              </button>
+            </div>`;
+        }
       })
-        .then(() => {
-          event.target.closest("li").firstChild.textContent = result;
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }
+    );
   }
 });
 
